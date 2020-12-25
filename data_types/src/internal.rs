@@ -289,7 +289,9 @@ impl Video {
     pub fn open(&self) {
         // open with mpv
         let link = &self.link;
-        Command::new("notify-send").arg("Open video").arg(&self.title).stderr(Stdio::null()).spawn().expect("failed");
+        if Command::new("notify-send").arg("Open video").arg(&self.title).stderr(Stdio::null()).spawn().is_err() {
+          println!("notify-send failed");
+        }
         Command::new("setsid").arg("-f").arg("umpv").arg(link).stderr(Stdio::null()).spawn().expect("umpv stating failed");
     }
     #[allow(dead_code)]
