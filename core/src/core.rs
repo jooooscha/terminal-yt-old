@@ -176,7 +176,9 @@ impl Core {
                         self.get_selected_channel_mut().next();
                     }
 
+                    let pos = self.get_selected_channel_index();
                     self.save();
+                    self.select(Some(pos));
                 }
             }
             Up => match self.current_screen {
@@ -276,7 +278,7 @@ impl Core {
             return;
         }
 
-        // keep current selection based on currend focused screen
+        // remember selected screen
         let on_videos = self.current_screen == Videos;
 
         let mut video_pos = None;
@@ -322,6 +324,10 @@ impl Core {
         }
     }
 
+    pub fn select(&mut self, pos: Option<usize>) {
+        self.channel_list.select(pos);
+    }
+
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
     pub fn update_channel(&mut self, updated_channel: Channel) {
         let mut channel_list = self.get_filtered_channel_list().clone();
@@ -352,8 +358,6 @@ impl Core {
         }
     }
 
-    //--------------
-
     pub fn get_selected_channel_index(&self) -> usize {
         match self.get_filtered_channel_list().selected() {
             Some(i) => i,
@@ -380,6 +384,8 @@ impl Core {
         let i = self.get_selected_channel().selected()?;
         self.get_selected_channel_mut().get_mut(i)
     }
+
+
     //---------------
     pub fn save(&mut self) {
         let f = self.current_filter;
