@@ -125,12 +125,6 @@ impl ToTuiListItem for Video {
         let yellow = Style::default().fg(Color::Yellow);
         let gray = Style::default().fg(Color::DarkGray).add_modifier(Modifier::ITALIC);
 
-        /* let text_color = if self.is_fav() {
-         *     green
-         * } else {
-         *     yellow
-         * }; */
-
         if self.marked {
             ListItem::new(Spans::from(vec![
                 Span::styled(new, gray),
