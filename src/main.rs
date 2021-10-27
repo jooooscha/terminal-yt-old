@@ -103,14 +103,13 @@ fn main() {
                     core.draw();
                 }
                 Key::Char('m') => {
-                    // ----------- mark ---------------
                     core.action(Mark);
                     core.draw();
                 }
                 Key::Char('M') => {
-                    // ----------- unmark -------------
                     core.action(Unmark);
                     core.draw();
+                    notify_open(&format!("{:?}", core.get_selected_channel_index()));
                 }
                 Key::Char('r') => {
                     update_channel_list(channel_update_sender.clone());
