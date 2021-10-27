@@ -220,7 +220,7 @@ impl ToTuiListItem for Channel {
             format!(" [{}]", &self.tag)
         };
 
-        let video_count = format!("{}", &self.videos.len());
+        let video_count = format!("{}/{}", num_marked, &self.videos.len());
 
         let new = if has_new {
             format!(" * ")
