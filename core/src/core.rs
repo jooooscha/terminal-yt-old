@@ -178,7 +178,7 @@ impl Core {
 
                     let pos = self.get_selected_channel_index();
                     self.save();
-                    self.select(Some(pos));
+                    self.select(pos);
                 }
             }
             Up => match self.current_screen {
@@ -324,8 +324,9 @@ impl Core {
         }
     }
 
-    pub fn select(&mut self, pos: Option<usize>) {
-        self.channel_list.select(pos);
+    pub fn select(&mut self, p: usize) {
+        let pos = cmp::min(self.channel_list.len()-1, p);
+        self.channel_list.select(Some(pos));
     }
 
     /// Search for the channel in channel_list by id. If found insert videos that are not already in channel.videos; else insert channel to channel_list.
