@@ -1,6 +1,6 @@
 # Terminal-yt
 
-A small newsboat-inspired youtube viewer written in Rust.
+A small newsboat-inspired youtube subscription manager written in Rust.
 
 Tyt can parse atom and RSS feeds and was written with video feed from YouTube or Twitch in mind.
 The default player is mpv. However, this can be changed in the settings.
