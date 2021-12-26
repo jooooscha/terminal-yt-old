@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     data_types::{
     channel::channel::Channel,
     video::{factory::VideoFactory, video::Video},

@@ -1,12 +1,15 @@
 mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use core::{
-    core::Core, data_types::channel::channel::Channel, fetch_data::fetch_new_videos, Action::*,
+use crate::core::{
+    core::Core,
+    data_types::channel::channel::Channel,
+    fetch_data::fetch_new_videos,
+    Action::*,
     Screen::*,
 };
 use events::*;
-use notification::notify::{notify_open, notify_link};
+use crate::notification::notify::{notify_open, notify_link};
 use std::{
     sync::mpsc::{channel, Sender},
     thread,

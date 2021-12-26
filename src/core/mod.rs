@@ -20,7 +20,7 @@ mod url_file;
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;
-use crate::config::Config;
+use crate::core::config::Config;
 pub trait ToTuiListItem {
     fn to_list_item(&self) -> ListItem;
 }

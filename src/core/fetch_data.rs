@@ -1,6 +1,6 @@
-use crate::history::read_history;
-use crate::url_file::{read_urls_file, UrlFileItem};
-use crate::{
+use crate::core::history::read_history;
+use crate::core::url_file::{read_urls_file, UrlFileItem};
+use crate::core::{
     data_types::{
         channel::{channel::Channel, factory::ChannelFactory},
         channel_list::ChannelList,

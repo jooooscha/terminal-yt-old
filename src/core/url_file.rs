@@ -1,4 +1,4 @@
-use crate::SortingMethod;
+use crate::core::SortingMethod;
 use chrono::prelude::*;
 use dirs_next::home_dir;
 use serde::{Deserialize, Serialize};

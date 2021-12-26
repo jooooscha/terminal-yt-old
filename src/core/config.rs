@@ -4,7 +4,7 @@ use std::{
     fs::File,
     io::{Read, Write},
 };
-use crate::SortingMethod;
+use crate::core::SortingMethod;
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config.yml";
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;

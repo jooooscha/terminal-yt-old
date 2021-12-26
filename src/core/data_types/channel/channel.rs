@@ -1,4 +1,4 @@
-use crate::{data_types::video::video::Video, url_file::UrlFileItem, SortingMethod, ToTuiListItem};
+use crate::core::{data_types::video::video::Video, url_file::UrlFileItem, SortingMethod, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
