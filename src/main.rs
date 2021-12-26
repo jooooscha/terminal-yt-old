@@ -13,6 +13,9 @@ use std::{
 };
 use termion::event::Key;
 
+mod core;
+mod notification;
+
 fn update_channel_list(
     channel_update_sender: Sender<Channel>,
 ) {
