@@ -104,15 +104,15 @@ impl Channel {
         &self.tag
     }
 
-    pub fn videos(&self) -> &Vec<Video> {
-        &self.videos
-    }
+    /* pub fn videos(&self) -> &Vec<Video> {
+     *     &self.videos
+     * } */
 
     //-------------------------------------------------
-
-    pub fn len(&self) -> usize {
-        self.videos.len()
-    }
+/* 
+ *     pub fn len(&self) -> usize {
+ *         self.videos.len()
+ *     } */
 
     pub fn select(&mut self, i: Option<usize>) {
         self.list_state.select(i);
@@ -130,17 +130,17 @@ impl Channel {
         self.videos.push(video);
     }
 
-    pub fn get(&self, index: usize) -> Option<&Video> {
-        self.videos.get(index)
-    }
+    /* pub fn get(&self, index: usize) -> Option<&Video> {
+     *     self.videos.get(index)
+     * } */
 
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Video> {
         self.videos.get_mut(index)
     }
 
-    pub fn append(&mut self, videos: &mut Vec<Video>) {
-        self.videos.append(videos);
-    }
+    /* pub fn append(&mut self, videos: &mut Vec<Video>) {
+     *     self.videos.append(videos);
+     * } */
 
     pub fn merge_videos(&mut self, other_videos: Vec<Video>) {
         for video in other_videos.into_iter() {
@@ -155,11 +155,11 @@ impl Channel {
         self.videos.contains(video)
     }
 
-    pub fn push_if_not_contains(&mut self, channel: Video) {
-        if self.videos.contains(&channel) {
-            self.videos.push(channel);
-        }
-    }
+    /* pub fn push_if_not_contains(&mut self, channel: Video) {
+     *     if self.videos.contains(&channel) {
+     *         self.videos.push(channel);
+     *     }
+     * } */
 
     pub fn sort(&mut self) {
         match self.sorting_method {
