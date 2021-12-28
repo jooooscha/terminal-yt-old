@@ -6,6 +6,10 @@
     rust-overlay.inputs.nixpkgs.follows = "nixpkgs";
     rust-overlay.inputs.flake-utils.follows = "flake-utils";
     nixpkgs.url = "github:nixos/nixpkgs?ref=release-21.05";
+    flake-compat = {
+      url = "github:edolstra/flake-compat";
+      flake = false;
+    };
   };
 
   outputs = { self, nixpkgs, cargo2nix, flake-utils, rust-overlay, ... }:
@@ -36,22 +40,38 @@
               overrideAttrs = drv: {
                 propagatedNativeBuildInputs = drv.propagatedNativeBuildInputs or [ ] ++ [
                   pkgs.xorg.libxcb.dev
-                  # pkgs.libX11
                 ];
               };
             })
           ];
         };
 
+        workspaceShell = rustPkgs.workspaceShell {
+          buildInputs = with pkgs; [
+            cargo-edit
+            cargo-expand
+            cargo-outdated
+            cargo-watch
+            rust-analyzer
+            lldb
+
+            nixpkgs-fmt
+          ];
+
+          nativeBuildInputs = with pkgs; [
+            rust-bin.stable.latest.default
+          ];
+        };
+
       in rec {
         # this is the output (recursive) set (expressed for each system)
 
-        # the packages in `nix build .#packages.<system>.<name>`
         packages = {
-          # nix build .#bigger-project
-          # nix build .#packages.x86_64-linux.bigger-project
           tyt = (rustPkgs.workspace.tyt {}).bin;
         };
+
+        # nix develop
+        devShell = workspaceShell;
 
         # nix build
         defaultPackage = packages.tyt;
