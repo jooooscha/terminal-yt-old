@@ -9,6 +9,7 @@ pub fn notify_open(video_title: &String) -> Output {
 }
 
 fn send(title: &String, msg: &String) -> Output {
-    Command::new("notify-send").arg(title).arg(msg).output().expect("failed")
+    // Command::new("notify-send").arg(title).arg(msg).output().expect("failed")
+    Command::new("dunstify").arg(title).arg(msg).output().expect("failed")
 }
     

@@ -8,6 +8,16 @@ edition = "2018"
 termion = "*"
 tui = "*"
 clipboard = "*"
+serde = { version = "*", features = ["derive"] }
+serde_json = "*"
+serde_yaml = "*"
+quick-xml = { version = "*", features = ["serialize"] }
+reqwest = { version = "*", features = ["blocking"] }
+chrono = "*"
+dirs-next = "*"
+threadpool = "*"
+rand = "*"
+alphanumeric-sort = "*"
 
-notification = { path = "./notification" }
-core = { path = "./core" }
+# notification = { path = "./notification" }
+# core = { path = "./core" }

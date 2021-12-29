@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     config::Config,
     data_types::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
     draw::draw,
@@ -376,10 +376,10 @@ impl Core {
         self.get_filtered_channel_list_mut().get_mut(i).unwrap()
     }
 
-    pub fn get_selected_video(&self) -> Option<&Video> {
-        let i = self.get_selected_channel().selected()?;
-        self.get_selected_channel().get(i)
-    }
+    /* pub fn get_selected_video(&self) -> Option<&Video> {
+     *     let i = self.get_selected_channel().selected()?;
+     *     self.get_selected_channel().get(i)
+     * } */
 
     pub fn get_selected_video_mut(&mut self) -> Option<&mut Video> {
         let i = self.get_selected_channel().selected()?;

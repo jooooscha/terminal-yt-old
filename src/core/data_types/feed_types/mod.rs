@@ -1,7 +1,7 @@
 pub mod atom;
 pub mod rss;
 
-use crate::data_types::{
+use crate::core::data_types::{
     video::factory::VideoFactory,
 };
 

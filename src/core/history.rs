@@ -1,8 +1,8 @@
 use dirs_next::home_dir;
 use std::{fs::File, io::prelude::*};
 
-use crate::data_types::channel_list::ChannelList;
-use crate::{data_types::video::video::Video, ToTuiListItem};
+use crate::core::data_types::channel_list::ChannelList;
+use crate::core::{data_types::video::video::Video, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},

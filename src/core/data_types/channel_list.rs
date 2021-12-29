@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     data_types::{channel::channel::Channel, video::video::Video},
     url_file::{read_urls_file, UrlFile, UrlFileItem},
     Filter::{self, *},

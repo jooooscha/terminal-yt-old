@@ -1,4 +1,4 @@
-use crate::{
+use crate::core::{
     config::Config,
     core::Core,
     data_types::{channel::channel::Channel, channel_list::ChannelList},
