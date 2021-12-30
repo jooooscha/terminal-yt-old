@@ -1,3 +1,7 @@
+# Old version 
+
+Some how the repo was > 200 mb, so I deleted .git and started a new repo [Termianl-YT](https://github.com/jooooscha/terminal-yt.git)
+
 # Terminal-yt
 
 A small newsboat-inspired youtube subscription manager written in Rust.
