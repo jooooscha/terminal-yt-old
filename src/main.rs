@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use events::*;
-use crate::notification::notify::{notify_open, notify_link};
+use crate::notification::{notify_open, notify_link};
 use termion::event::Key;
 
 mod notification;

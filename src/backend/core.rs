@@ -38,7 +38,7 @@ impl Core {
         let terminal = Terminal::default();
 
         // ------------------------------------------
-        let config = Config::read_config_file();
+        let config = Config::init();
 
         let current_filter = if config.show_empty_channels {
             Filter::NoFilter

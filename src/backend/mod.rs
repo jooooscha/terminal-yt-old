@@ -1,7 +1,7 @@
 pub(crate) mod data;
 pub(crate) mod core;
 
-mod config;
+pub(super) mod config;
 mod draw;
 mod history;
 mod url_file;
@@ -114,6 +114,6 @@ pub enum SortingMethod {
 
 impl Default for SortingMethod {
     fn default() -> Self {
-        Config::read_config_file().default_sorting_method
+        Config::init().default_sorting_method
     }
 }
