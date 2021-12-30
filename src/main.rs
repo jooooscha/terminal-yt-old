@@ -1,18 +1,16 @@
 mod events;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use crate::core::{
-    core::Core,
-    data::channel::channel::Channel,
-    fetch_data::Data,
-    Action::*,
-    Screen::*,
+use crate::{
+    core::{
+        data::Data,
+        core::Core,
+        Action::*,
+        Screen::*,
+    },
 };
 use events::*;
 use crate::notification::notify::{notify_open, notify_link};
-use std::{
-    sync::mpsc::{channel, Sender},
-};
 use termion::event::Key;
 
 mod core;

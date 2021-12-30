@@ -13,14 +13,14 @@ use std::sync::{mpsc::channel, mpsc::{Sender, Receiver, TryRecvError}};
 use threadpool::ThreadPool;
 use std::thread;
 
-pub struct Data {
+pub(crate) struct Data {
     sender: Sender<Channel>,
     receiver: Receiver<Channel>,
 }
 
 impl Data {
     /// Init
-    pub fn init() -> Self {
+    pub(crate) fn init() -> Self {
         let (sender, receiver) = channel();
         Self {
             sender,
@@ -29,12 +29,12 @@ impl Data {
     }
 
     /// try receive data that was newly fetched
-    pub fn try_recv(&self) -> Result<Channel, TryRecvError> {
+    pub(crate) fn try_recv(&self) -> Result<Channel, TryRecvError> {
         self.receiver.try_recv()
     }
 
     /// start fetching process
-    pub fn update(&self) {
+    pub(crate) fn update(&self) {
         let sender = self.sender.clone();
         thread::spawn(move || {
             fetch(sender);

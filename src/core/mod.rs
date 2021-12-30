@@ -14,7 +14,6 @@ pub mod data {
 
 mod config;
 mod draw;
-pub(crate) mod fetch_data;
 mod history;
 mod url_file;
 
