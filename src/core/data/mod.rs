@@ -13,7 +13,6 @@ use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
 use std::sync::{mpsc::channel, mpsc::{Sender, Receiver, TryRecvError}};
 use threadpool::ThreadPool;
-use std::thread;
 
 pub(crate) struct Data {
     sender: Sender<Channel>,
