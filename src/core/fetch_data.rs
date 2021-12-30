@@ -4,7 +4,7 @@ use crate::core::{
     data_types::{
         channel::channel::Channel,
         channel_list::ChannelList,
-        feed_types::{atom, rss, Feed},
+        feed::{atom, rss, Feed},
     },
 };
 use chrono::prelude::*;

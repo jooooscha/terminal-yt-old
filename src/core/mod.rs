@@ -5,7 +5,7 @@ pub mod data_types {
         pub mod factory;
     }
     pub(crate) mod channel_list;
-    pub(crate) mod feed_types;
+    pub(crate) mod feed;
     pub(crate) mod video {
         pub(crate) mod factory;
         pub(crate) mod video;
@@ -14,7 +14,7 @@ pub mod data_types {
 
 mod config;
 mod draw;
-pub mod fetch_data;
+pub(crate) mod fetch_data;
 mod history;
 mod url_file;
 
