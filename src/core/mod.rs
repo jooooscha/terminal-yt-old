@@ -1,21 +1,24 @@
-pub mod core;
-pub mod data {
-    pub mod channel {
-        pub mod channel;
-        pub mod factory;
-    }
-    pub(crate) mod channel_list;
-    pub(crate) mod feed;
-    pub(crate) mod video {
-        pub(crate) mod factory;
-        pub(crate) mod video;
-    }
-}
+pub(crate) mod data;
+pub(crate) mod core;
 
 mod config;
 mod draw;
 mod history;
 mod url_file;
+
+/* pub mod core;
+ * pub mod data {
+ *     pub mod channel {
+ *         pub mod channel;
+ *         pub mod factory;
+ *     }
+ *     pub(crate) mod channel_list;
+ *     pub(crate) mod feed;
+ *     pub(crate) mod video {
+ *         pub(crate) mod factory;
+ *         pub(crate) mod video;
+ *     }
+ * } */
 
 use serde::{Deserialize, Serialize};
 use tui::widgets::ListItem;

@@ -1,7 +1,10 @@
 use crate::core::{
     config::Config,
     core::Core,
-    data::{channel::channel::Channel, channel_list::ChannelList},
+    data::{
+        channel::Channel,
+        channel_list::ChannelList,
+    },
     history::MinimalVideo,
     Screen::*,
     ToTuiListItem,

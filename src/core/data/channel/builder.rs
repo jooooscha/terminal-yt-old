@@ -1,8 +1,11 @@
 use crate::core::{
     data::{
-    feed::Feed,
-    channel::channel::Channel,
-    video::{factory::VideoFactory, video::Video},
+        feed::Feed,
+        channel::Channel,
+        video::{
+            Video,
+            builder::VideoBuilder,
+        },
     },
     SortingMethod,
 };
@@ -10,7 +13,7 @@ use crate::core::{
 #[derive(Default)]
 pub struct ChannelBuilder {
     channel: Channel,
-    new_videos: Vec<VideoFactory>,
+    new_videos: Vec<VideoBuilder>,
     old_videos: Vec<Video>,
 }
 

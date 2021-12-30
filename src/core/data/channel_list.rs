@@ -1,5 +1,5 @@
 use crate::core::{
-    data::{channel::channel::Channel, video::video::Video},
+    data::{channel::Channel, video::Video},
     url_file::{read_urls_file, UrlFile, UrlFileItem},
     Filter::{self, *},
     ToTuiListItem,

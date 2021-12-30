@@ -1,3 +1,5 @@
+pub(in super) mod builder;
+
 use crate::core::ToTuiListItem;
 use std::cmp::Ordering::{self, *};
 use chrono::DateTime;

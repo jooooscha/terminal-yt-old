@@ -1,11 +1,18 @@
-use crate::core::{data::video::video::Video, url_file::UrlFileItem, SortingMethod, ToTuiListItem};
+mod builder;
+
+use crate::core::{
+    data::{
+        video::Video,
+        channel::builder::ChannelBuilder,
+    },
+    url_file::UrlFileItem, SortingMethod, ToTuiListItem
+};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
     text::{Span, Spans},
     widgets::{ListItem, ListState},
 };
-use crate::core::data::channel::factory::ChannelBuilder;
 use alphanumeric_sort;
 
 

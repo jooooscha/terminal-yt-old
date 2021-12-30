@@ -1,12 +1,12 @@
-use crate::core::data::{feed::*, video::video::Video};
+use crate::core::data::{feed::*, video::Video};
 use chrono::DateTime;
 
 #[derive(Default)]
-pub struct VideoFactory {
+pub struct VideoBuilder {
     video: Video,
 }
 
-impl VideoFactory {
+impl VideoBuilder {
     pub fn create() -> Self {
         let mut video_factory = Self::default();
         video_factory.video.new = true;
@@ -51,15 +51,15 @@ impl VideoFactory {
     }
 }
 
-impl PartialEq<VideoFactory> for VideoFactory {
-    fn eq(&self, other: &VideoFactory) -> bool {
+impl PartialEq<VideoBuilder> for VideoBuilder {
+    fn eq(&self, other: &VideoBuilder) -> bool {
         self.video == other.video
     }
 }
 
-impl From<rss::Video> for VideoFactory {
+impl From<rss::Video> for VideoBuilder {
     fn from(rss_video: rss::Video) -> Self {
-        let mut vf = VideoFactory::create();
+        let mut vf = VideoBuilder::create();
 
         let title = rss_video.title;
         let link = rss_video.link;
@@ -76,9 +76,9 @@ impl From<rss::Video> for VideoFactory {
     }
 }
 
-impl From<atom::Video> for VideoFactory {
+impl From<atom::Video> for VideoBuilder {
     fn from(atom_vid: atom::Video) -> Self {
-        let mut vf = VideoFactory::create();
+        let mut vf = VideoBuilder::create();
 
         let title = atom_vid.title;
         let link = format!("https://www.youtube.com/watch?v={}", atom_vid.id);

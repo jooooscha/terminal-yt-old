@@ -2,17 +2,12 @@ pub mod atom;
 pub mod rss;
 use quick_xml::de::from_str;
 
-use crate::core::data::{
-    video::{
-        factory::VideoFactory,
-        video::Video,
-    },
-};
+use crate::core::data::video::builder::VideoBuilder;
 
 #[derive(Default)]
 pub(crate) struct Feed {
     pub(crate) name: String,
-    pub(crate) videos: Vec<VideoFactory>,
+    pub(crate) videos: Vec<VideoBuilder>,
 }
 
 impl Feed {
@@ -32,7 +27,7 @@ impl Feed {
         Err(String::from("Could not parse feed"))
     }
 
-    pub fn add_videos(&mut self, videos: Vec<VideoFactory>) {
+    pub fn add_videos(&mut self, videos: Vec<VideoBuilder>) {
         for video in videos.into_iter() {
             if !self.videos.iter().any(|v| v == &video) {
                 self.videos.push(video);
@@ -55,7 +50,7 @@ impl From<rss::Feed> for Feed {
         let videos = feed
             .videos
             .into_iter()
-            .map(|rss_vid| VideoFactory::from(rss_vid))
+            .map(|rss_vid| VideoBuilder::from(rss_vid))
             .collect();
 
         // Feed { name, id, videos }
@@ -71,7 +66,7 @@ impl From<atom::Feed> for Feed {
         let videos = feed
             .videos
             .into_iter()
-            .map(|atom_vid| VideoFactory::from(atom_vid))
+            .map(|atom_vid| VideoBuilder::from(atom_vid))
             .collect();
 
         // Feed { name, id, videos }

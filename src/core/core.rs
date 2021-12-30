@@ -1,6 +1,6 @@
 use crate::core::{
     config::Config,
-    data::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
+    data::{channel::Channel, channel_list::ChannelList, video::Video},
     draw::draw,
     history::{
         read_history, read_playback_history, write_history, write_playback_history, MinimalVideo,

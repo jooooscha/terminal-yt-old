@@ -1,13 +1,15 @@
+pub(crate) mod channel;
+pub(crate) mod video;
+pub(crate) mod channel_list;
+mod feed;
+
 use crate::core::history::read_history;
 use crate::core::url_file::{read_urls_file, UrlFileItem};
 use crate::core::{
-    data::{
-        channel::channel::Channel,
-        channel_list::ChannelList,
-        feed::{atom, rss, Feed},
-    },
+    data::channel::Channel,
+    data::feed::Feed,
 };
-use chrono::prelude::*;
+use self::channel_list::ChannelList;
 use reqwest::blocking::Client;
 use std::sync::{mpsc::channel, mpsc::{Sender, Receiver, TryRecvError}};
 use threadpool::ThreadPool;
@@ -22,6 +24,7 @@ impl Data {
     /// Init
     pub(crate) fn init() -> Self {
         let (sender, receiver) = channel();
+
         Self {
             sender,
             receiver,
@@ -35,92 +38,79 @@ impl Data {
 
     /// start fetching process
     pub(crate) fn update(&self) {
-        let sender = self.sender.clone();
-        thread::spawn(move || {
-            fetch(sender);
-        });
+        let url_file_content = read_urls_file();
+
+        // load already known items
+        let history: ChannelList = read_history();
+
+        // prepate threads
+        let worker_num = 4;
+        let pool = ThreadPool::new(worker_num);
+
+        // load "normal" channels
+        for item in url_file_content.channels {
+            let sender_clone = self.sender.clone();
+            let hc = history.clone();
+            let item = item.clone();
+            let urls = vec![item.url.clone()];
+
+            pool.execute(move || {
+                fetch_channel_updates(sender_clone, hc, item, urls); // updates will be send with `channel_sender`
+            })
+        }
+
+        // load custom channels
+        for item in url_file_content.custom_channels {
+            let sender_clone = self.sender.clone();
+            let hc = history.clone();
+            let item = item.clone();
+            let urls = item.urls.clone();
+
+            pool.execute(move || {
+                fetch_channel_updates(sender_clone, hc, item, urls); // updates will be send with `channel_sender`
+            })
+        }
     }
-}
-
-fn fetch(sender: Sender<Channel>) {
-    let url_file_content = read_urls_file();
-
-    // load already known items
-    let history: ChannelList = read_history();
-
-    // prepate threads
-    let worker_num = 4;
-    let jobs_num = url_file_content.len();
-    let pool = ThreadPool::new(worker_num);
-
-    // prepare channel pipes
-    /* let (channel_sender, channel_receiver) = channel(); */
-
-    // load "normal" channels
-    for item in url_file_content.channels {
-        let channel_sender = sender.clone();
-        let hc = history.clone();
-        let item = item.clone();
-        let urls = vec![item.url.clone()];
-
-        fetch_channel_updates(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
-    }
-
-    // load custom channels
-    for item in url_file_content.custom_channels {
-        let channel_sender = sender.clone();
-        let hc = history.clone();
-        let item = item.clone();
-        let urls = item.urls.clone();
-
-        fetch_channel_updates(channel_sender, &pool, hc, item, urls); // updates will be send with `channel_sender`
-    }
-
-    // receive channels from `update_video_from_url`
-    /* for chan in channel_receiver.iter().take(jobs_num) {
-     *     sender.send(chan).unwrap();
-     * } */
 }
 
 fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
     channel_sender: Sender<Channel>,
-    pool: &ThreadPool,
     history: ChannelList,
     item: T,
     urls: Vec<String>,
 ) {
-    pool.execute(move || {
+    // get videos from history file
+    let (history_videos, history_name) = match history.get_by_id(&item.id()) {
+        Some(h) => (h.videos.clone(), h.name().clone()),
+        None => (Vec::new(), String::new()),
+    };
 
-        // get videos from history file
-        let (history_videos, history_name) = match history.get_by_id(&item.id()) {
-            Some(h) => (h.videos.clone(), h.name().clone()),
-            None => (Vec::new(), String::new()),
-        };
+    // download feed (if active)
+    let feed = if item.active() {
+        download_feed(&urls)
+    } else {
+        Feed::default()
+    };
 
-        // get correct name
-        let name = if item.name().is_empty() {
-            history_name
-        } else {
-            item.name()
-        };
+    // choose item name first; if not given take feed name; take history name as last resort
+    let name = if !item.name().is_empty() {
+        item.name()
+    } else if !feed.name.is_empty() {
+        feed.name.clone()
+    } else {
+        history_name
+    };
 
-        let feed = if item.active() {
-            download_feed(&urls)
-        } else {
-            Feed::default()
-        };
+    let channel = Channel::builder()
+        .add_from_feed(feed)
+        .with_old_videos(history_videos)
+        .with_name(name)
+        .with_id(item.id())
+        .with_tag(item.tag())
+        .with_sorting(item.sorting_method())
+        .build();
 
-        let channel = Channel::builder()
-            .add_from_feed(feed)
-            .with_old_videos(history_videos)
-            .with_name(name)
-            .with_id(item.id())
-            .with_tag(item.tag())
-            .with_sorting(item.sorting_method())
-            .build();
-
-        let _ = channel_sender.send(channel);
-    });
+    let _ = channel_sender.send(channel);
 }
 
 // download xml and parse
@@ -129,6 +119,7 @@ fn download_feed(urls: &Vec<String>) -> Feed {
 
     let mut feed_final = Feed::default();
 
+    // one internal feed can consist of seveal "normal" feeds
     for url in urls.iter() {
 
         // download feed
