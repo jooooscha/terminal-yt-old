@@ -5,11 +5,13 @@ use tui::{
     text::{Span, Spans},
     widgets::{ListItem, ListState},
 };
+use crate::core::data_types::channel::factory::ChannelBuilder;
 use alphanumeric_sort;
+
 
 //----------------------------------
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Channel {
     pub(super) name: String,
     pub(super) id: String,
@@ -26,16 +28,21 @@ pub struct Channel {
 //----------------------------------
 
 impl Channel {
-    pub(super) fn new() -> Self {
-        Channel {
-            name: String::from("placeholder_name"),
-            id: String::from("placeholder_id"),
-            videos: Vec::new(),
-            list_state: ListState::default(),
-            tag: String::from("placeholder_tag"),
-            sorting_method: SortingMethod::Date,
-        }
+
+    pub fn builder() -> ChannelBuilder {
+        ChannelBuilder::default()
     }
+
+    /* pub(super) fn new() -> Self {
+     *     Channel {
+     *         name: String::from("placeholder_name"),
+     *         id: String::from("placeholder_id"),
+     *         videos: Vec::new(),
+     *         list_state: ListState::default(),
+     *         tag: String::from("placeholder_tag"),
+     *         sorting_method: SortingMethod::Date,
+     *     }
+     * } */
 
     pub fn next(&mut self) {
         let state = &self.list_state;

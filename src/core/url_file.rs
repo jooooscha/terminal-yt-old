@@ -66,7 +66,8 @@ pub struct UrlFile {
 
 pub trait UrlFileItem {
     fn id(&self) -> ChannelId;
-    fn update_on(&self) -> Vec<Date>;
+    /* fn update_on(&self) -> Vec<Date>; */
+    fn active(&self) -> bool;
     fn tag(&self) -> ChannelTag;
     fn name(&self) -> ChannelName;
     fn sorting_method(&self) -> SortingMethod;
@@ -102,8 +103,9 @@ impl UrlFileItem for UrlFileChannel {
     fn id(&self) -> ChannelId {
         self.url.clone()
     }
-    fn update_on(&self) -> Vec<Date> {
-        self.update_on.clone()
+    fn active(&self) -> bool {
+        let today = Local::now().weekday();
+        self.update_on.iter().any(|w| w.eq_to(&today))
     }
     fn tag(&self) -> ChannelTag {
         self.tag.clone()
@@ -120,8 +122,9 @@ impl UrlFileItem for UrlFileCustomChannel {
     fn id(&self) -> ChannelId {
         self.name.clone()
     }
-    fn update_on(&self) -> Vec<Date> {
-        self.update_on.clone()
+    fn active(&self) -> bool {
+        let today = Local::now().weekday();
+        self.update_on.iter().any(|w| w.eq_to(&today))
     }
     fn tag(&self) -> ChannelTag {
         self.tag.clone()

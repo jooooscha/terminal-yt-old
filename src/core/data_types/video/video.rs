@@ -8,7 +8,7 @@ use tui::{
     widgets::ListItem,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, Default)]
 pub struct Video {
     pub(super) title: String,
     pub(super) link: String,

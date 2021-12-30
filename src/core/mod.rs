@@ -33,8 +33,7 @@ pub enum Filter {
 
 #[derive(PartialEq)]
 pub enum Action {
-    Mark,
-    Unmark,
+    Mark(bool),
     Up,
     Down,
     Enter,

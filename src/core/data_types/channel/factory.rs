@@ -1,156 +1,95 @@
 use crate::core::{
     data_types::{
+    feed_types::Feed,
     channel::channel::Channel,
     video::{factory::VideoFactory, video::Video},
     },
     SortingMethod,
 };
 
-pub struct ChannelFactory {
+#[derive(Default)]
+pub struct ChannelBuilder {
     channel: Channel,
     new_videos: Vec<VideoFactory>,
     old_videos: Vec<Video>,
-    name_set: bool,
-    id_set: bool,
-    tag_set: bool,
-    new_videos_set: bool,
-    old_videos_set: bool,
-    sorting_set: bool,
 }
 
-impl ChannelFactory {
-    pub fn create() -> ChannelFactory {
-        let channel = Channel::new();
-        let new_videos = Vec::new();
-        let old_videos = Vec::new();
-
-        ChannelFactory {
-            channel,
-            new_videos,
-            old_videos,
-            name_set: false,
-            id_set: false,
-            tag_set: false,
-            new_videos_set: false,
-            old_videos_set: false,
-            sorting_set: false,
-        }
+impl ChannelBuilder {
+    pub(crate) fn add_from_feed(mut self, feed: Feed) -> Self {
+        self.channel.name = feed.name;
+        self.new_videos = feed.videos;
+        self
     }
 
-    pub fn set_name(&mut self, name: String) {
+    pub fn with_name(mut self, name: String) -> Self {
         self.channel.name = name;
-        self.name_set = true;
+        self
     }
 
-    pub fn name_set(&self) -> bool {
-        self.name_set
-    }
-
-    pub fn set_id(&mut self, id: String) {
+    pub fn with_id(mut self, id: String) -> Self {
         self.channel.id = id;
-        self.id_set = true;
+        self
     }
 
-    pub fn set_tag(&mut self, tag: String) {
+    pub fn with_tag(mut self, tag: String) -> Self {
         self.channel.tag = tag;
-        self.tag_set = true;
+        self
     }
 
-    pub fn add_new_videos(&mut self, videos: Vec<VideoFactory>) {
-        for video in videos.into_iter() {
-            if !self.new_videos.iter().any(|v| v == &video) {
-                self.new_videos.push(video);
-            }
-        }
-
-        self.new_videos_set = true;
-    }
-
-    pub fn new_videos_added(&self) -> bool {
-        self.new_videos_set
-    }
-
-    pub fn set_old_videos(&mut self, videos: Vec<Video>) {
+    pub fn with_old_videos(mut self, videos: Vec<Video>) -> Self {
         self.old_videos = videos;
-        self.old_videos_set = true;
+        self
     }
 
-    pub fn set_sorting(&mut self, sorting_method: SortingMethod) {
+    pub fn with_sorting(mut self, sorting_method: SortingMethod) -> Self {
         self.channel.sorting_method = sorting_method;
-        self.sorting_set = true;
+        self
     }
 
-    pub fn commit(mut self) -> Result<Channel, String> {
-        if !self.name_set {
-            return Err(String::from("name not set"));
-        }
-
-        if !self.id_set {
-            return Err(String::from("id not set"));
-        }
-
-        if !self.tag_set {
-            return Err(String::from("tag not set"));
-        }
-
-        if !self.new_videos_set {
-            return Err(String::from("new_videos not set"));
-        }
-
-        if !self.old_videos_set {
-            return Err(String::from("old_videos not set"));
-        }
-
-        if !self.sorting_set {
-            return Err(String::from("sorting not set"));
-        }
-
-        // -------------------------------------------------------------
-
+    pub fn build(mut self) -> Channel {
+        // set already known videos
         let mut videos = self.old_videos;
 
+        // iterate over new videos and add unknown
         for video_factory in self.new_videos.into_iter() {
-            let video = match video_factory.commit() {
-                Ok(video) => video,
-                Err(error) => return Err(error),
-            };
+            let video = video_factory.build();
             if !videos.iter().any(|v| v == &video) {
                 videos.push(video);
             }
         }
 
         self.channel.videos = videos;
-
         self.channel.sort();
 
-        Ok(self.channel) // if all correct return channel
+        // return finished channel
+        self.channel.clone()
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use rand::{distributions::Alphanumeric, Rng};
-
-    fn random_string() -> String {
-        rand::thread_rng()
-            .sample_iter(&Alphanumeric)
-            .take(9)
-            .map(char::from)
-            .collect()
-    }
-
-    impl ChannelFactory {
-        pub fn test() -> Self {
-            let mut cf = ChannelFactory::create();
-            cf.set_name(String::new());
-            cf.set_id(random_string());
-            cf.set_tag(String::new());
-            cf.add_new_videos(Vec::new());
-            cf.set_old_videos(Vec::new());
-            cf.set_sorting(SortingMethod::Date);
-
-            cf
-        }
-    }
-}
+/* #[cfg(test)]
+ * mod tests {
+ *     use super::*;
+ *     use rand::{distributions::Alphanumeric, Rng};
+ *
+ *     fn random_string() -> String {
+ *         rand::thread_rng()
+ *             .sample_iter(&Alphanumeric)
+ *             .take(9)
+ *             .map(char::from)
+ *             .collect()
+ *     }
+ *
+ *     impl ChannelFactory {
+ *         pub fn test() -> Self {
+ *             let mut cf = ChannelFactory::create();
+ *             cf.set_name(String::new());
+ *             cf.set_id(random_string());
+ *             cf.set_tag(String::new());
+ *             cf.add_new_videos(Vec::new());
+ *             cf.set_old_videos(Vec::new());
+ *             cf.set_sorting(SortingMethod::Date);
+ *
+ *             cf
+ *         }
+ *     }
+ * } */

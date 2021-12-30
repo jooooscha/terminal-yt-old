@@ -1,13 +1,48 @@
 pub mod atom;
 pub mod rss;
+use quick_xml::de::from_str;
 
 use crate::core::data_types::{
-    video::factory::VideoFactory,
+    video::{
+        factory::VideoFactory,
+        video::Video,
+    },
 };
 
+#[derive(Default)]
 pub(crate) struct Feed {
     pub(crate) name: String,
     pub(crate) videos: Vec<VideoFactory>,
+}
+
+impl Feed {
+    pub fn parse_text(feed: String) -> Result<Self, String> {
+        // try to parse as atom
+        match from_str::<atom::Feed>(&feed) {
+            Ok(feed) => return Ok(feed.into()),
+            Err(_) => (),
+        };
+
+        // try to parse as rss
+        match from_str::<rss::Feed>(&feed) {
+            Ok(feed) => return Ok(feed.into()),
+            Err(_) => (),
+        }
+
+        Err(String::from("Could not parse feed"))
+    }
+
+    pub fn add_videos(&mut self, videos: Vec<VideoFactory>) {
+        for video in videos.into_iter() {
+            if !self.videos.iter().any(|v| v == &video) {
+                self.videos.push(video);
+            }
+        }
+    }
+
+    pub fn set_name(&mut self, name: &String) {
+        self.name = name.clone();
+    }
 }
 
 impl From<rss::Feed> for Feed {

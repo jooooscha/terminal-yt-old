@@ -162,9 +162,8 @@ impl Core {
     /// Contains every possible action.
     pub fn action(&mut self, action: Action) -> Option<String> {
         match action {
-            Mark | Unmark => {
+            Mark(state) => {
                 if self.current_screen == Videos {
-                    let state = action == Mark;
                     match self.get_selected_video_mut() {
                         Some(video) => video.mark(state),
                         None => (),
@@ -229,7 +228,7 @@ impl Core {
 
                 // mark video
                 if self.config.mark_on_open {
-                    self.action(Mark);
+                    self.action(Mark(true));
                 }
 
                 // for playback history
@@ -738,7 +737,7 @@ mod tests {
         println!("{}", channel_id);
 
         for _ in 0..3 {
-            core.action(Mark);
+            core.action(Mark(true));
             draw(&mut core, gui_mode);
         }
 
