@@ -46,8 +46,8 @@ If no config file is found, a config file with all options and their default val
 | update_at_start     | true    | bool | Fetch new videos at start                                                                                                       |
 | sort_by_tag         | false   | bool | Sort channels by tag or name                                                                                                    |
 | message_timeout     | 20      | u8   | Timeout for (error) messages                                                                                                    |
-| use_notify_send     | true    | bool | if `false` no message with notify-send will be send                                                                             |
-| video_player        | mpv     | str  | Can be changed to [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv), vlc, or any other program.        |
+| notify_with         | "notify-send    | str |  |
+| video_player        | "mpv"     | str  | Can be changed to [umpv](https://raw.githubusercontent.com/mpv-player/mpv/master/TOOLS/umpv), vlc, or any other program.        |
 
 ## Url file
 
