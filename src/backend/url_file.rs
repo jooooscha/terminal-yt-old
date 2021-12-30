@@ -1,4 +1,4 @@
-use crate::core::SortingMethod;
+use crate::backend::SortingMethod;
 use chrono::prelude::*;
 use dirs_next::home_dir;
 use serde::{Deserialize, Serialize};
@@ -33,8 +33,7 @@ pub enum Date {
 
 impl Date {
     pub fn eq_to(&self, other: &Weekday) -> bool {
-        match (self, other) {
-            (Date::Mon, Weekday::Mon)
+        matches!((self, other), (Date::Mon, Weekday::Mon)
             | (Date::Tue, Weekday::Tue)
             | (Date::Wed, Weekday::Wed)
             | (Date::Thu, Weekday::Thu)
@@ -48,10 +47,8 @@ impl Date {
             | (Date::Workday, Weekday::Fri)
             | (Date::Weekend, Weekday::Sat)
             | (Date::Weekend, Weekday::Sun)
-            | (Date::Always, _) => true,
-
-            _ => false,
-        }
+            | (Date::Always, _)
+        )
     }
 }
 
@@ -66,7 +63,8 @@ pub struct UrlFile {
 
 pub trait UrlFileItem {
     fn id(&self) -> ChannelId;
-    fn update_on(&self) -> Vec<Date>;
+    /* fn update_on(&self) -> Vec<Date>; */
+    fn active(&self) -> bool;
     fn tag(&self) -> ChannelTag;
     fn name(&self) -> ChannelName;
     fn sorting_method(&self) -> SortingMethod;
@@ -102,8 +100,9 @@ impl UrlFileItem for UrlFileChannel {
     fn id(&self) -> ChannelId {
         self.url.clone()
     }
-    fn update_on(&self) -> Vec<Date> {
-        self.update_on.clone()
+    fn active(&self) -> bool {
+        let today = Local::now().weekday();
+        self.update_on.iter().any(|w| w.eq_to(&today))
     }
     fn tag(&self) -> ChannelTag {
         self.tag.clone()
@@ -120,8 +119,9 @@ impl UrlFileItem for UrlFileCustomChannel {
     fn id(&self) -> ChannelId {
         self.name.clone()
     }
-    fn update_on(&self) -> Vec<Date> {
-        self.update_on.clone()
+    fn active(&self) -> bool {
+        let today = Local::now().weekday();
+        self.update_on.iter().any(|w| w.eq_to(&today))
     }
     fn tag(&self) -> ChannelTag {
         self.tag.clone()
@@ -136,18 +136,13 @@ impl UrlFileItem for UrlFileCustomChannel {
 
 // impl UrlFile {
 impl UrlFile {
-    /// return length of channels + custom_channels
-    pub fn len(&self) -> usize {
-        self.channels.len() + self.custom_channels.len()
-    }
-
     /// checks wheather the url file contains a channel with the given id
-    pub fn contains_channel_by_id(&self, id: &String) -> bool {
-        let in_channels = self.channels.iter().any(|channel| &channel.id() == id);
+    pub fn contains_channel_by_id(&self, id: &str) -> bool {
+        let in_channels = self.channels.iter().any(|channel| channel.id() == id);
         let in_custom_channels = self
             .custom_channels
             .iter()
-            .any(|channel| &channel.id() == id);
+            .any(|channel| channel.id() == id);
 
         in_channels || in_custom_channels
     }
@@ -156,16 +151,6 @@ impl UrlFile {
 fn date_always() -> Vec<Date> {
     vec![Date::Always]
 }
-/* impl Default for UrlFileChannel {
- *     fn default() -> Self {
- *         UrlFileChannel {
- *             url: String::new(),
- *             name: String::new(),
- *             update_on: vec![Date::Always],
- *             tag: String::new(),
- *         }
- *     }
- * } */
 
 pub fn read_urls_file() -> UrlFile {
     let mut path = home_dir().unwrap();
@@ -197,48 +182,48 @@ pub fn read_urls_file() -> UrlFile {
     }
 }
 
-#[cfg(test)]
-pub mod tests {
-    use super::{Date, *};
-
-    impl UrlFileChannel {
-        pub fn test(name: String, tag: String, url: String) -> Self {
-            let update_on = vec![Date::Mon];
-            let sorting_method = SortingMethod::Date;
-
-            UrlFileChannel {
-                name,
-                update_on,
-                tag,
-                url,
-                sorting_method,
-            }
-        }
-    }
-
-    impl UrlFileCustomChannel {
-        pub fn test(name: String, tag: String, urls: Vec<String>) -> Self {
-            let update_on = vec![Date::Mon];
-            let sorting_method = SortingMethod::Date;
-
-            UrlFileCustomChannel {
-                name,
-                update_on,
-                tag,
-                urls,
-                sorting_method,
-            }
-        }
-    }
-
-    impl UrlFile {
-        pub fn test(custom_channels: Vec<UrlFileCustomChannel>) -> Self {
-            let channels = Vec::new();
-
-            UrlFile {
-                channels,
-                custom_channels,
-            }
-        }
-    }
-}
+/* #[cfg(test)]
+ * pub mod tests {
+ *     use super::{Date, *};
+ *
+ *     impl UrlFileChannel {
+ *         pub fn test(name: String, tag: String, url: String) -> Self {
+ *             let update_on = vec![Date::Mon];
+ *             let sorting_method = SortingMethod::Date;
+ *
+ *             UrlFileChannel {
+ *                 name,
+ *                 update_on,
+ *                 tag,
+ *                 url,
+ *                 sorting_method,
+ *             }
+ *         }
+ *     }
+ *
+ *     impl UrlFileCustomChannel {
+ *         pub fn test(name: String, tag: String, urls: Vec<String>) -> Self {
+ *             let update_on = vec![Date::Mon];
+ *             let sorting_method = SortingMethod::Date;
+ *
+ *             UrlFileCustomChannel {
+ *                 name,
+ *                 update_on,
+ *                 tag,
+ *                 urls,
+ *                 sorting_method,
+ *             }
+ *         }
+ *     }
+ *
+ *     impl UrlFile {
+ *         pub fn test(custom_channels: Vec<UrlFileCustomChannel>) -> Self {
+ *             let channels = Vec::new();
+ *
+ *             UrlFile {
+ *                 channels,
+ *                 custom_channels,
+ *             }
+ *         }
+ *     }
+ * } */

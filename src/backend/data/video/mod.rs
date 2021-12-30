@@ -1,5 +1,7 @@
-use crate::core::ToTuiListItem;
-use std::cmp::Ordering::{self, *};
+pub(in super) mod builder;
+
+use crate::backend::ToTuiListItem;
+use std::cmp::Ordering;
 use chrono::DateTime;
 use serde::{Deserialize, Serialize};
 use tui::{
@@ -8,7 +10,7 @@ use tui::{
     widgets::ListItem,
 };
 
-#[derive(Debug, Clone, Serialize, Deserialize, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, Eq, Default)]
 pub struct Video {
     pub(super) title: String,
     pub(super) link: String,
@@ -22,7 +24,7 @@ pub struct Video {
     pub(super) pub_date: String,
 
     #[serde(skip)]
-    pub(super) new: bool,
+    pub(super) is_new: bool,
 }
 
 impl Video {
@@ -62,33 +64,29 @@ impl Video {
         &self.pub_date
     }
 
-    pub fn new(&self) -> bool {
-        self.new
+    pub fn is_new(&self) -> bool {
+        self.is_new
     }
 
     pub fn get_details(&self) -> String {
-        format!("{}", self.title)
+        self.title.to_string()
     }
 }
 
 impl Ord for Video {
     fn cmp(&self, other: &Self) -> Ordering {
-        let mut i = 0;
-        let mut j = 0;
+        let mut i = 0; // self
+        let mut j = 0; // other
 
-        if !self.is_fav() { i  += 100; }
+        // fav has highest prio
+        if !self.is_fav()  { i += 100; }
         if !other.is_fav() { j += 100; }
 
-        if self.marked { i     += 10; }
-        if other.marked { j    += 10; }
+        // marked has less prio
+        if self.marked     { i +=  10; }
+        if other.marked    { j +=  10; }
 
-        if i > j {
-            Greater
-        } else if i == j {
-            Equal
-        } else {
-            Less
-        }
+        i.cmp(&j)
     }
 }
 
@@ -108,13 +106,13 @@ impl ToTuiListItem for Video {
     fn to_list_item(&self) -> ListItem {
 
         let new = if self.is_fav() {
-            format!(" ⭐ ")
-        } else if self.new {
-            format!(" * ")
+            " ⭐ ".to_string()
+        } else if self.is_new {
+            " * ".to_string()
         } else {
             String::from(" ")
         };
-        let title = format!("{}", &self.title);
+        let title = self.title.to_string();
         let date = match DateTime::parse_from_rfc3339(&self.pub_date) {
             Ok(date_) => format!("{:>4}", &date_.format("%d.%m.%y")),
             Err(_) => String::new(),

@@ -84,7 +84,7 @@ impl<'de> Deserialize<'de> for Video {
             }
         }
 
-        const FIELDS: &'static [&'static str] = &["title", "link", "pub_date"];
+        const FIELDS: &[&str] = &["title", "link", "pub_date"];
         d.deserialize_struct("Video", FIELDS, VideoVisitor)
     }
 }
@@ -147,7 +147,7 @@ impl<'de> Deserialize<'de> for Channel {
             }
         }
 
-        const FIELDS: &'static [&'static str] = &["title", "link", "videos"];
+        const FIELDS: &[&str] = &["title", "link", "videos"];
         d.deserialize_struct("Channel", FIELDS, ChannelVisitor)
     }
 }

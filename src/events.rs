@@ -23,22 +23,16 @@ impl Events {
             let tx = tx.clone();
             thread::spawn(move || {
                 let stdin = io::stdin();
-                for event in stdin.keys() {
-                    match event {
-                        Ok(key) => {
-                            if let Err(_) = tx.send(Event::Input(key)) {
-                                return;
-                            }
-                        }
-                        Err(_) => {}
+
+                for key in stdin.keys().flatten() {
+                    if tx.send(Event::Input(key)).is_err() {
+                        return;
                     }
                 }
             })
         };
         let tick_handle = {
-            let tx = tx.clone();
             thread::spawn(move || {
-                let tx = tx.clone();
                 loop {
                     tx.send(Event::Tick).unwrap();
                     thread::sleep(Duration::from_millis(50));

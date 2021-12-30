@@ -1,31 +1,20 @@
 mod events;
+mod backend;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
-use crate::core::{
-    core::Core,
-    data_types::channel::channel::Channel,
-    fetch_data::fetch_new_videos,
-    Action::*,
-    Screen::*,
+use crate::{
+    backend::{
+        data::Data,
+        core::Core,
+        Action::*,
+        Screen::*,
+    },
 };
 use events::*;
-use crate::notification::notify::{notify_open, notify_link};
-use std::{
-    sync::mpsc::{channel, Sender},
-    thread,
-};
+use crate::notification::{notify_open, notify_link};
 use termion::event::Key;
 
-mod core;
 mod notification;
-
-fn update_channel_list(
-    channel_update_sender: Sender<Channel>,
-) {
-    thread::spawn(move || {
-        fetch_new_videos(channel_update_sender);
-    });
-}
 
 fn main() {
     let mut core = Core::new_with_history();
@@ -33,18 +22,17 @@ fn main() {
     let events = Events::new();
 
     let mut tick_counter = 0;
-    let mut size = core.terminal.clone().lock().unwrap().size().unwrap();
 
-    let (channel_update_sender, channel_update_receiver) = channel();
+    let data = Data::init();
 
     if core.update_at_start() {
-        update_channel_list(channel_update_sender.clone());
+        data.update();
     }
 
     loop {
         let event = events.next();
 
-        if let Ok(c) = channel_update_receiver.try_recv() {
+        if let Ok(c) = data.try_recv() {
             core.update_channel(c);
             core.save();
         }
@@ -100,25 +88,24 @@ fn main() {
                         Channels => { let _ = core.action(Enter); }
                         Videos => {
                             let video_details = core.action(Open);
-                            match video_details {
-                                Some(vd) => { let _ = notify_open(&vd); }
-                                None => ()
+                            if let Some(vd) = video_details {
+                                let _ = notify_open(&vd);
                             }
                         }
                     }
                     core.draw();
                 }
                 Key::Char('m') => {
-                    core.action(Mark);
+                    core.action(Mark(true));
                     core.draw();
                 }
                 Key::Char('M') => {
-                    core.action(Unmark);
+                    core.action(Mark(false));
                     core.draw();
-                    notify_open(&format!("{:?}", core.get_selected_channel_index()));
                 }
                 Key::Char('r') => {
-                    update_channel_list(channel_update_sender.clone());
+                    /* update_channel_list(channel_update_sender.clone()); */
+                    data.update();
                     core.action(Leave);
                 }
                 Key::Char('t') => {
@@ -147,9 +134,8 @@ fn main() {
                     tick_counter -= 1
                 }
 
-                if core.terminal.clone().lock().unwrap().size().unwrap() != size.clone() {
+                if core.terminal.update_size() {
                     core.draw();
-                    size = core.terminal.clone().lock().unwrap().size().unwrap();
                 }
             }
         }

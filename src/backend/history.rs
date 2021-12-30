@@ -1,8 +1,8 @@
 use dirs_next::home_dir;
 use std::{fs::File, io::prelude::*};
 
-use crate::core::data_types::channel_list::ChannelList;
-use crate::core::{data_types::video::video::Video, ToTuiListItem};
+use crate::backend::data::channel_list::ChannelList;
+use crate::backend::{data::video::Video, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
@@ -29,7 +29,7 @@ pub struct MinimalVideo {
 impl ToTuiListItem for MinimalVideo {
     fn to_list_item(&self) -> ListItem {
         let channel = format!("{} {} - ", tui::symbols::DOT, &self.channel);
-        let title = format!("{}", &self.title);
+        let title = (&self.title).to_string();
 
         let style = Style::default().fg(Color::DarkGray);
 
@@ -96,7 +96,7 @@ fn read_history_intern(history_path: &str) -> ChannelList {
 
 // ------------------------------------------------------------------------------------------
 
-pub fn write_playback_history(list: &Vec<MinimalVideo>) {
+pub fn write_playback_history(list: &[MinimalVideo]) {
     let json = serde_json::to_string(list).unwrap();
 
     let mut path = home_dir().unwrap();
@@ -133,7 +133,7 @@ pub fn read_playback_history() -> Vec<MinimalVideo> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::data_types::{
+    use crate::data::{
         channel::factory::ChannelFactory, video::factory::tests::get_random_video_factory,
     };
     use std::fs::remove_file;

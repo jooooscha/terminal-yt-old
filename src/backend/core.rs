@@ -1,6 +1,6 @@
-use crate::core::{
+use crate::backend::{
     config::Config,
-    data_types::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
+    data::{channel::Channel, channel_list::ChannelList, video::Video},
     draw::draw,
     history::{
         read_history, read_playback_history, write_history, write_playback_history, MinimalVideo,
@@ -9,55 +9,20 @@ use crate::core::{
     Action::*,
     Filter, Screen,
     Screen::*,
+    Terminal,
 };
 use std::{
     cmp,
-    io::{stdin, stdout},
     process::{Command, Stdio},
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
+    sync::mpsc::{channel, Receiver, Sender},
 };
-use termion::{input::MouseTerminal, screen::AlternateScreen};
-use tui::{backend::TermionBackend, Terminal};
 
-#[cfg(test)]
-use rand::{distributions::Alphanumeric, prelude::*, Rng};
-#[cfg(test)]
-use std::env;
-#[cfg(test)]
-use std::{thread, time};
-
-#[cfg(not(test))]
-use termion::raw::IntoRawMode;
+/* #[cfg(not(test))]
+ * use termion::raw::IntoRawMode; */
 
 // The main struct containing everything important
 pub struct Core {
-    #[cfg(not(test))]
-    pub terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>,
-                    >,
-                >,
-            >,
-        >,
-    >,
-    #[cfg(test)]
-    pub terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<std::io::Stdout>,
-                    >,
-                >,
-            >,
-        >,
-    >,
+    pub(crate) terminal: Terminal,
     pub(crate) config: Config,
     pub(crate) update_line: String,
     pub(crate) current_screen: Screen,
@@ -70,19 +35,10 @@ pub struct Core {
 
 impl Core {
     pub fn new_with_history() -> Self {
-        #[cfg(not(test))]
-        let stdout = stdout().into_raw_mode().unwrap();
-        #[cfg(test)]
-        let stdout = stdout();
-        let mouse_terminal = MouseTerminal::from(stdout);
-        /* let screen = mouse_terminal; */
-        let screen = AlternateScreen::from(mouse_terminal);
-        let _stdin = stdin();
-        let backend = TermionBackend::new(screen);
-        let terminal = Arc::new(Mutex::new(Terminal::new(backend).unwrap()));
+        let terminal = Terminal::default();
 
         // ------------------------------------------
-        let config = Config::read_config_file();
+        let config = Config::init();
 
         let current_filter = if config.show_empty_channels {
             Filter::NoFilter
@@ -108,7 +64,7 @@ impl Core {
 
         Core {
             terminal,
-            config: config.clone(),
+            config,
             current_screen: Channels,
             channel_list,
             update_line: String::new(),
@@ -162,12 +118,10 @@ impl Core {
     /// Contains every possible action.
     pub fn action(&mut self, action: Action) -> Option<String> {
         match action {
-            Mark | Unmark => {
+            Mark(state) => {
                 if self.current_screen == Videos {
-                    let state = action == Mark;
-                    match self.get_selected_video_mut() {
-                        Some(video) => video.mark(state),
-                        None => (),
+                    if let Some(video) = self.get_selected_video_mut() {
+                        video.mark(state);
                     }
 
                     if !self.get_selected_channel_mut().has_new() && self.current_filter == Filter::OnlyNew {
@@ -229,7 +183,7 @@ impl Core {
 
                 // mark video
                 if self.config.mark_on_open {
-                    self.action(Mark);
+                    self.action(Mark(true));
                 }
 
                 // for playback history
@@ -335,7 +289,7 @@ impl Core {
 
         self.post(format!("Updated: {}", &updated_channel.name()));
 
-        if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id()) {
+        if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel
         } else {
             channel_list.push(updated_channel); // insert new channel
@@ -360,10 +314,7 @@ impl Core {
     }
 
     pub fn get_selected_channel_index(&self) -> usize {
-        match self.get_filtered_channel_list().selected() {
-            Some(i) => i,
-            None => 0,
-        }
+        self.get_filtered_channel_list().selected().unwrap_or(0)
     }
 
     pub fn get_selected_channel(&self) -> &Channel {
@@ -399,7 +350,7 @@ impl Core {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data_types::{
+    use crate::data::{
         channel::factory::ChannelFactory,
         video::factory::tests::{
             get_marked_video_factory, get_random_video_factory, get_unmarked_video_factory,
@@ -738,7 +689,7 @@ mod tests {
         println!("{}", channel_id);
 
         for _ in 0..3 {
-            core.action(Mark);
+            core.action(Mark(true));
             draw(&mut core, gui_mode);
         }
 
