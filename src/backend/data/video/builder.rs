@@ -1,4 +1,4 @@
-use crate::core::data::{feed::*, video::Video};
+use crate::backend::data::{feed::*, video::Video};
 use chrono::DateTime;
 
 #[derive(Default)]
@@ -9,7 +9,7 @@ pub struct VideoBuilder {
 impl VideoBuilder {
     pub fn create() -> Self {
         let mut video_factory = Self::default();
-        video_factory.video.new = true;
+        video_factory.video.is_new = true;
 
         video_factory
     }
@@ -22,28 +22,16 @@ impl VideoBuilder {
         self.video.link = link;
     }
 
-    pub fn set_origin_url(&mut self, url: &String) {
-        self.video.origin_url = url.clone();
+    pub fn set_origin_url(&mut self, url: &str) {
+        self.video.origin_url = url.to_string();
     }
 
-    pub fn set_origin_channel_name(&mut self, name: &String) {
-        self.video.origin_channel_name = name.clone();
+    pub fn set_origin_channel_name(&mut self, name: &str) {
+        self.video.origin_channel_name = name.to_string();
     }
 
     pub fn set_pub_date(&mut self, date: String) {
         self.video.pub_date = date;
-    }
-
-    pub fn set_marked(&mut self, marked: bool) {
-        self.video.marked = marked;
-    }
-
-    pub fn set_new(&mut self, is_new: bool) {
-        self.video.new = is_new;
-    }
-
-    pub fn set_fav(&mut self, is_fav: bool) {
-        self.video.fav = is_fav;
     }
 
     pub fn build(self) -> Video {

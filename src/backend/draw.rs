@@ -1,4 +1,4 @@
-use crate::core::{
+use crate::backend::{
     config::Config,
     core::Core,
     data::{
@@ -8,10 +8,10 @@ use crate::core::{
     history::MinimalVideo,
     Screen::*,
     ToTuiListItem,
+    Terminal,
 };
-use std::sync::{Arc, Mutex};
 use std::thread;
-use tui::{backend::TermionBackend, widgets::ListItem, Terminal};
+use tui::widgets::ListItem;
 use tui::{
     layout::{Alignment, Constraint, Direction, Layout},
     style::Style,
@@ -23,30 +23,7 @@ const INFO_LINE: &str =
     "q close; o open video/select; Enter/l select; Esc/h go back; m mark; M unmark";
 
 pub struct View {
-    #[cfg(not(test))]
-    terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>,
-                    >,
-                >,
-            >,
-        >,
-    >,
-    #[cfg(test)]
-    terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<std::io::Stdout>,
-                    >,
-                >,
-            >,
-        >,
-    >,
+    terminal: Terminal,
     config: Config,
     update_line: String,
     show_videos: bool,
@@ -120,7 +97,7 @@ pub fn draw(app: View) {
             .rev()
             .collect();
 
-        let _res = app.terminal.clone().lock().unwrap().draw(|f| {
+        let _res = app.terminal.term.clone().lock().unwrap().draw(|f| {
             // --------------------------
             let main_structure = Layout::default()
                 .direction(Direction::Vertical)
@@ -180,7 +157,7 @@ pub fn draw(app: View) {
                 .alignment(Alignment::Left);
             f.render_widget(par_1, main_structure[1]);
 
-            let par_2 = Paragraph::new(Span::from(INFO_LINE.clone()))
+            let par_2 = Paragraph::new(Span::from(INFO_LINE))
                 .style(Style::default())
                 .alignment(Alignment::Left);
 

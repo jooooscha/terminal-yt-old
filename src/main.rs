@@ -1,8 +1,9 @@
 mod events;
+mod backend;
 
 use clipboard::{ClipboardContext, ClipboardProvider};
 use crate::{
-    core::{
+    backend::{
         data::Data,
         core::Core,
         Action::*,
@@ -13,7 +14,6 @@ use events::*;
 use crate::notification::notify::{notify_open, notify_link};
 use termion::event::Key;
 
-mod core;
 mod notification;
 
 fn main() {
@@ -22,7 +22,6 @@ fn main() {
     let events = Events::new();
 
     let mut tick_counter = 0;
-    let mut size = core.terminal.clone().lock().unwrap().size().unwrap();
 
     let data = Data::init();
 
@@ -89,9 +88,8 @@ fn main() {
                         Channels => { let _ = core.action(Enter); }
                         Videos => {
                             let video_details = core.action(Open);
-                            match video_details {
-                                Some(vd) => { let _ = notify_open(&vd); }
-                                None => ()
+                            if let Some(vd) = video_details {
+                                let _ = notify_open(&vd);
                             }
                         }
                     }
@@ -136,9 +134,8 @@ fn main() {
                     tick_counter -= 1
                 }
 
-                if core.terminal.clone().lock().unwrap().size().unwrap() != size.clone() {
+                if core.terminal.update_size() {
                     core.draw();
-                    size = core.terminal.clone().lock().unwrap().size().unwrap();
                 }
             }
         }

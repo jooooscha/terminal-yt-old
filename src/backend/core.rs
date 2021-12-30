@@ -1,4 +1,4 @@
-use crate::core::{
+use crate::backend::{
     config::Config,
     data::{channel::Channel, channel_list::ChannelList, video::Video},
     draw::draw,
@@ -9,55 +9,20 @@ use crate::core::{
     Action::*,
     Filter, Screen,
     Screen::*,
+    Terminal,
 };
 use std::{
     cmp,
-    io::{stdin, stdout},
     process::{Command, Stdio},
-    sync::{
-        mpsc::{channel, Receiver, Sender},
-        Arc, Mutex,
-    },
+    sync::mpsc::{channel, Receiver, Sender},
 };
-use termion::{input::MouseTerminal, screen::AlternateScreen};
-use tui::{backend::TermionBackend, Terminal};
 
-#[cfg(test)]
-use rand::{distributions::Alphanumeric, prelude::*, Rng};
-#[cfg(test)]
-use std::env;
-#[cfg(test)]
-use std::{thread, time};
-
-#[cfg(not(test))]
-use termion::raw::IntoRawMode;
+/* #[cfg(not(test))]
+ * use termion::raw::IntoRawMode; */
 
 // The main struct containing everything important
 pub struct Core {
-    #[cfg(not(test))]
-    pub terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<termion::raw::RawTerminal<std::io::Stdout>>,
-                    >,
-                >,
-            >,
-        >,
-    >,
-    #[cfg(test)]
-    pub terminal: Arc<
-        Mutex<
-            Terminal<
-                TermionBackend<
-                    termion::screen::AlternateScreen<
-                        termion::input::MouseTerminal<std::io::Stdout>,
-                    >,
-                >,
-            >,
-        >,
-    >,
+    pub(crate) terminal: Terminal,
     pub(crate) config: Config,
     pub(crate) update_line: String,
     pub(crate) current_screen: Screen,
@@ -70,16 +35,7 @@ pub struct Core {
 
 impl Core {
     pub fn new_with_history() -> Self {
-        #[cfg(not(test))]
-        let stdout = stdout().into_raw_mode().unwrap();
-        #[cfg(test)]
-        let stdout = stdout();
-        let mouse_terminal = MouseTerminal::from(stdout);
-        /* let screen = mouse_terminal; */
-        let screen = AlternateScreen::from(mouse_terminal);
-        let _stdin = stdin();
-        let backend = TermionBackend::new(screen);
-        let terminal = Arc::new(Mutex::new(Terminal::new(backend).unwrap()));
+        let terminal = Terminal::default();
 
         // ------------------------------------------
         let config = Config::read_config_file();
@@ -108,7 +64,7 @@ impl Core {
 
         Core {
             terminal,
-            config: config.clone(),
+            config,
             current_screen: Channels,
             channel_list,
             update_line: String::new(),
@@ -164,9 +120,8 @@ impl Core {
         match action {
             Mark(state) => {
                 if self.current_screen == Videos {
-                    match self.get_selected_video_mut() {
-                        Some(video) => video.mark(state),
-                        None => (),
+                    if let Some(video) = self.get_selected_video_mut() {
+                        video.mark(state);
                     }
 
                     if !self.get_selected_channel_mut().has_new() && self.current_filter == Filter::OnlyNew {
@@ -334,7 +289,7 @@ impl Core {
 
         self.post(format!("Updated: {}", &updated_channel.name()));
 
-        if let Some(channel) = channel_list.get_mut_by_id(&updated_channel.id()) {
+        if let Some(channel) = channel_list.get_mut_by_id(updated_channel.id()) {
             channel.merge_videos(updated_channel.videos); // add video to channel
         } else {
             channel_list.push(updated_channel); // insert new channel
@@ -359,10 +314,7 @@ impl Core {
     }
 
     pub fn get_selected_channel_index(&self) -> usize {
-        match self.get_filtered_channel_list().selected() {
-            Some(i) => i,
-            None => 0,
-        }
+        self.get_filtered_channel_list().selected().unwrap_or(0)
     }
 
     pub fn get_selected_channel(&self) -> &Channel {

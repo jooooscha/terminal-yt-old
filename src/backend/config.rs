@@ -4,7 +4,7 @@ use std::{
     fs::File,
     io::{Read, Write},
 };
-use crate::core::SortingMethod;
+use crate::backend::SortingMethod;
 
 const CONFIG_FILE_PATH: &str = ".config/tyt/config.yml";
 const SCHOW_EMPTY_CHANNEL_DEFAULT: bool = true;
@@ -73,12 +73,12 @@ impl Config {
                         let string = serde_yaml::to_string(&def_config).unwrap();
 
                         match file.write_all(string.as_bytes()) {
-                            Ok(_) => return Config::read_config_file(),
+                            Ok(_) => Config::read_config_file(),
                             Err(e) => panic!("could not write default config: {}", e),
                         }
                     }
                     Err(e) => panic!("could not create config file: {}", e),
-                };
+                }
             }
         }
     }

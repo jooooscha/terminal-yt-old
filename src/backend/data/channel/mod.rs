@@ -1,6 +1,6 @@
 mod builder;
 
-use crate::core::{
+use crate::backend::{
     data::{
         video::Video,
         channel::builder::ChannelBuilder,
@@ -13,10 +13,6 @@ use tui::{
     text::{Span, Spans},
     widgets::{ListItem, ListState},
 };
-use alphanumeric_sort;
-
-
-//----------------------------------
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Channel {
@@ -32,24 +28,11 @@ pub struct Channel {
     list_state: ListState,
 }
 
-//----------------------------------
-
 impl Channel {
 
     pub fn builder() -> ChannelBuilder {
         ChannelBuilder::default()
     }
-
-    /* pub(super) fn new() -> Self {
-     *     Channel {
-     *         name: String::from("placeholder_name"),
-     *         id: String::from("placeholder_id"),
-     *         videos: Vec::new(),
-     *         list_state: ListState::default(),
-     *         tag: String::from("placeholder_tag"),
-     *         sorting_method: SortingMethod::Date,
-     *     }
-     * } */
 
     pub fn next(&mut self) {
         let state = &self.list_state;
@@ -85,26 +68,18 @@ impl Channel {
         self.videos.iter().any(|v| !v.marked())
     }
 
-    /* pub fn add_origin(&mut self, url: &String) {
-     *     for video in self.videos.iter_mut() {
-     *         video.add_origin(url, &self.name.clone());
-     *     }
-     * } */
-
     pub(crate) fn update_from_url_file(&mut self, url_file_channel: &dyn UrlFileItem) {
         // set name - prefere name declard in url-file
         if !url_file_channel.name().is_empty() {
-            self.name = url_file_channel.name().clone();
+            self.name = url_file_channel.name()
         }
 
         // set tag
-        self.tag = url_file_channel.tag().clone();
+        self.tag = url_file_channel.tag();
 
         // set sort order
         self.sorting_method = url_file_channel.sorting_method();
     }
-
-    //-------------------------------------------------
 
     pub fn id(&self) -> &String {
         &self.id
@@ -114,26 +89,16 @@ impl Channel {
         &self.name
     }
 
-    pub fn tag(&self) -> &String {
-        &self.tag
-    }
-
-    /* pub fn videos(&self) -> &Vec<Video> {
-     *     &self.videos
-     * } */
-
-    //-------------------------------------------------
-/* 
- *     pub fn len(&self) -> usize {
- *         self.videos.len()
- *     } */
-
     pub fn select(&mut self, i: Option<usize>) {
         self.list_state.select(i);
     }
 
     pub fn selected(&self) -> Option<usize> {
         self.list_state.selected()
+    }
+
+    pub fn tag(&self) -> &String {
+        &self.tag
     }
 
     pub fn state(&self) -> ListState {
@@ -144,17 +109,10 @@ impl Channel {
         self.videos.push(video);
     }
 
-    /* pub fn get(&self, index: usize) -> Option<&Video> {
-     *     self.videos.get(index)
-     * } */
 
     pub fn get_mut(&mut self, index: usize) -> Option<&mut Video> {
         self.videos.get_mut(index)
     }
-
-    /* pub fn append(&mut self, videos: &mut Vec<Video>) {
-     *     self.videos.append(videos);
-     * } */
 
     pub fn merge_videos(&mut self, other_videos: Vec<Video>) {
         for video in other_videos.into_iter() {
@@ -168,12 +126,6 @@ impl Channel {
     pub fn contains(&self, video: &Video) -> bool {
         self.videos.contains(video)
     }
-
-    /* pub fn push_if_not_contains(&mut self, channel: Video) {
-     *     if self.videos.contains(&channel) {
-     *         self.videos.push(channel);
-     *     }
-     * } */
 
     pub fn sort(&mut self) {
         match self.sorting_method {
@@ -202,7 +154,6 @@ impl Channel {
             .iter()
             .map(|e| e.to_list_item())
             .collect::<Vec<ListItem>>()
-            .clone()
     }
 }
 
@@ -224,9 +175,9 @@ impl ToTuiListItem for Channel {
             .clone()
             .into_iter()
             .filter(|video| !video.marked())
-            .collect::<Vec<Video>>()
-            .len();
-        let has_new = self.videos.iter().any(|video| video.new());
+            .count();
+
+        let has_new = self.videos.iter().any(|video| video.is_new());
 
         let tag = if self.tag.is_empty() {
             String::from("")
@@ -237,11 +188,11 @@ impl ToTuiListItem for Channel {
         let video_count = format!("{}/{}", num_marked, &self.videos.len());
 
         let new = if has_new {
-            format!(" * ")
+            " * ".to_string()
         } else {
             String::from(" ")
         };
-        let name = format!("{}", &self.name);
+        let name = self.name.to_string();
 
         let spacer = String::from(" - ");
 
@@ -270,25 +221,25 @@ impl ToTuiListItem for Channel {
     }
 }
 
-#[cfg(test)]
-pub mod tests {
-    use super::*;
-    use crate::SortingMethod;
-
-    impl Channel {
-        pub fn test(name: String, tag: String, id: String) -> Self {
-            let list_state = ListState::default();
-
-            let videos = Vec::new();
-
-            Channel {
-                name,
-                tag,
-                id,
-                list_state,
-                videos,
-                sorting_method: SortingMethod::Date,
-            }
-        }
-    }
-}
+/* #[cfg(test)]
+ * pub mod tests {
+ *     use super::*;
+ *     use crate::SortingMethod;
+ *
+ *     impl Channel {
+ *         pub fn test(name: String, tag: String, id: String) -> Self {
+ *             let list_state = ListState::default();
+ *
+ *             let videos = Vec::new();
+ *
+ *             Channel {
+ *                 name,
+ *                 tag,
+ *                 id,
+ *                 list_state,
+ *                 videos,
+ *                 sorting_method: SortingMethod::Date,
+ *             }
+ *         }
+ *     }
+ * } */

@@ -1,4 +1,4 @@
-use crate::core::{
+use crate::backend::{
     data::{
         feed::Feed,
         channel::Channel,

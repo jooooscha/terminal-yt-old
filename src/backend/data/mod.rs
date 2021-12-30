@@ -3,9 +3,9 @@ pub(crate) mod video;
 pub(crate) mod channel_list;
 mod feed;
 
-use crate::core::history::read_history;
-use crate::core::url_file::{read_urls_file, UrlFileItem};
-use crate::core::{
+use crate::backend::history::read_history;
+use crate::backend::url_file::{read_urls_file, UrlFileItem};
+use crate::backend::{
     data::channel::Channel,
     data::feed::Feed,
 };
@@ -113,7 +113,7 @@ fn fetch_channel_updates<T: 'static + UrlFileItem + std::marker::Send>(
 }
 
 // download xml and parse
-fn download_feed(urls: &Vec<String>) -> Feed {
+fn download_feed(urls: &[String]) -> Feed {
     let client = Client::builder().build().unwrap();
 
     let mut feed_final = Feed::default();
@@ -123,7 +123,7 @@ fn download_feed(urls: &Vec<String>) -> Feed {
 
         // download feed
         let text = match client.get(url).send() {
-            Ok(res) => res.text().unwrap_or(String::new()),
+            Ok(res) => res.text().unwrap_or_default(),
             Err(_) => continue,
         };
 

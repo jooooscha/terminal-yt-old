@@ -1,5 +1,5 @@
-use crate::core::{
-    data::{channel::Channel, video::Video},
+use crate::backend::{
+    data::channel::Channel,
     url_file::{read_urls_file, UrlFile, UrlFileItem},
     Filter::{self, *},
     ToTuiListItem,
@@ -90,17 +90,17 @@ impl ChannelList {
         self.channels.get_mut(index)
     }
 
-    pub fn get_by_id(&self, id: &String) -> Option<&Channel> {
+    pub fn get_by_id(&self, id: &str) -> Option<&Channel> {
         let p = self.get_position_by_id(id)?;
         self.channels.get(p)
     }
 
-    pub fn get_mut_by_id(&mut self, id: &String) -> Option<&mut Channel> {
+    pub fn get_mut_by_id(&mut self, id: &str) -> Option<&mut Channel> {
         let p = self.get_position_by_id(id)?;
         self.channels.get_mut(p)
     }
 
-    pub fn get_position_by_id(&self, id: &String) -> Option<usize> {
+    pub fn get_position_by_id(&self, id: &str) -> Option<usize> {
         self.channels.iter().position(|channel| channel.id() == id)
     }
 
@@ -116,7 +116,7 @@ impl ChannelList {
         self.channels = self
             .channels
             .iter()
-            .filter(|channel| url_file.contains_channel_by_id(&channel.id()))
+            .filter(|channel| url_file.contains_channel_by_id(channel.id()))
             .cloned()
             .collect();
 
@@ -128,7 +128,7 @@ impl ChannelList {
                 channel.videos = channel
                     .videos
                     .iter()
-                    .filter(|video| urls.contains(&video.origin_url()))
+                    .filter(|video| urls.contains(video.origin_url()))
                     .cloned()
                     .collect();
             }
@@ -169,8 +169,8 @@ impl ChannelList {
                 .clone()
                 .into_iter()
                 .filter(|video| !video.marked())
-                .collect::<Vec<Video>>()
-                .len();
+                .count();
+
             if num_marked != 0 {
                 channels.push(channel);
             }
