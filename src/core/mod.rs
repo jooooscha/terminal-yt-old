@@ -1,5 +1,5 @@
 pub mod core;
-pub mod data_types {
+pub mod data {
     pub mod channel {
         pub mod channel;
         pub mod factory;

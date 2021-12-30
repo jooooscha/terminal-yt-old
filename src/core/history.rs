@@ -1,8 +1,8 @@
 use dirs_next::home_dir;
 use std::{fs::File, io::prelude::*};
 
-use crate::core::data_types::channel_list::ChannelList;
-use crate::core::{data_types::video::video::Video, ToTuiListItem};
+use crate::core::data::channel_list::ChannelList;
+use crate::core::{data::video::video::Video, ToTuiListItem};
 use serde::{Deserialize, Serialize};
 use tui::{
     style::{Color, Modifier, Style},
@@ -133,7 +133,7 @@ pub fn read_playback_history() -> Vec<MinimalVideo> {
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use crate::data_types::{
+    use crate::data::{
         channel::factory::ChannelFactory, video::factory::tests::get_random_video_factory,
     };
     use std::fs::remove_file;

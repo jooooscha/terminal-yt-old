@@ -1,5 +1,5 @@
 use crate::core::{
-    data_types::{channel::channel::Channel, video::video::Video},
+    data::{channel::channel::Channel, video::video::Video},
     url_file::{read_urls_file, UrlFile, UrlFileItem},
     Filter::{self, *},
     ToTuiListItem,
@@ -230,47 +230,47 @@ impl PartialEq<ChannelList> for ChannelList {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::url_file::*;
-
-    impl ChannelList {
-        pub fn test(channels: Vec<Channel>) -> ChannelList {
-            let backup = Vec::new();
-            let list_state = ListState::default();
-
-            ChannelList {
-                backup,
-                list_state,
-                channels,
-            }
-        }
-    }
-
-    #[test]
-    fn test_update_from_url() {
-        let channels = vec![
-            Channel::test("channel_1".into(), "tag_1".into(), "channel_1".into()),
-            Channel::test("channel_2".into(), "tag_2".into(), "channel_2".into()),
-        ];
-
-        let url_channels = vec![UrlFileCustomChannel::test(
-            "channel_2".into(),
-            "tag_2".into(),
-            vec!["url_2".into()],
-        )];
-
-        let url_file = UrlFile::test(url_channels);
-        let mut channel_list = ChannelList::test(channels);
-
-        println!("{:#?}", url_file);
-        println!("{:#?}", channel_list);
-        assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_1"));
-
-        channel_list.remove_old(&url_file);
-
-        println!("{:#?}", channel_list);
-        assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_2"));
-    }
-}
+/* #[cfg(test)]
+ * mod tests {
+ *     use super::*;
+ *     use crate::url_file::*;
+ *
+ *     impl ChannelList {
+ *         pub fn test(channels: Vec<Channel>) -> ChannelList {
+ *             let backup = Vec::new();
+ *             let list_state = ListState::default();
+ *
+ *             ChannelList {
+ *                 backup,
+ *                 list_state,
+ *                 channels,
+ *             }
+ *         }
+ *     }
+ *
+ *     #[test]
+ *     fn test_update_from_url() {
+ *         let channels = vec![
+ *             Channel::test("channel_1".into(), "tag_1".into(), "channel_1".into()),
+ *             Channel::test("channel_2".into(), "tag_2".into(), "channel_2".into()),
+ *         ];
+ *
+ *         let url_channels = vec![UrlFileCustomChannel::test(
+ *             "channel_2".into(),
+ *             "tag_2".into(),
+ *             vec!["url_2".into()],
+ *         )];
+ *
+ *         let url_file = UrlFile::test(url_channels);
+ *         let mut channel_list = ChannelList::test(channels);
+ *
+ *         println!("{:#?}", url_file);
+ *         println!("{:#?}", channel_list);
+ *         assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_1"));
+ *
+ *         channel_list.remove_old(&url_file);
+ *
+ *         println!("{:#?}", channel_list);
+ *         assert_eq!(channel_list.get(0).unwrap().id(), &String::from("channel_2"));
+ *     }
+ * } */

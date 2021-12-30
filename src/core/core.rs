@@ -1,6 +1,6 @@
 use crate::core::{
     config::Config,
-    data_types::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
+    data::{channel::channel::Channel, channel_list::ChannelList, video::video::Video},
     draw::draw,
     history::{
         read_history, read_playback_history, write_history, write_playback_history, MinimalVideo,
@@ -398,7 +398,7 @@ impl Core {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::data_types::{
+    use crate::data::{
         channel::factory::ChannelFactory,
         video::factory::tests::{
             get_marked_video_factory, get_random_video_factory, get_unmarked_video_factory,

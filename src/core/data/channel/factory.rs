@@ -1,5 +1,5 @@
 use crate::core::{
-    data_types::{
+    data::{
     feed::Feed,
     channel::channel::Channel,
     video::{factory::VideoFactory, video::Video},

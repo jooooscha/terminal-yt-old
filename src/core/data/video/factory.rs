@@ -1,4 +1,4 @@
-use crate::core::data_types::{feed::*, video::video::Video};
+use crate::core::data::{feed::*, video::video::Video};
 use chrono::DateTime;
 
 #[derive(Default)]

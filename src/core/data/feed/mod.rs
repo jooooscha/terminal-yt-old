@@ -2,7 +2,7 @@ pub mod atom;
 pub mod rss;
 use quick_xml::de::from_str;
 
-use crate::core::data_types::{
+use crate::core::data::{
     video::{
         factory::VideoFactory,
         video::Video,

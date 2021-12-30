@@ -1,7 +1,7 @@
 use crate::core::history::read_history;
 use crate::core::url_file::{read_urls_file, UrlFileItem};
 use crate::core::{
-    data_types::{
+    data::{
         channel::channel::Channel,
         channel_list::ChannelList,
         feed::{atom, rss, Feed},
@@ -160,7 +160,7 @@ fn download_feed(urls: &Vec<String>) -> Feed {
 /* #[cfg(test)]
  * mod tests {
  *     use super::*;
- *     use crate::data_types::video::Video;
+ *     use crate::data::video::Video;
  *
  *     fn test_feed() -> String {
  *         String::from("<rss><channel><title>TITLE</title><link>http://example.com</link><description>DESCRIPTION</description><ttl>123</ttl>

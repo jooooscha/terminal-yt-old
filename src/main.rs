@@ -3,7 +3,7 @@ mod events;
 use clipboard::{ClipboardContext, ClipboardProvider};
 use crate::core::{
     core::Core,
-    data_types::channel::channel::Channel,
+    data::channel::channel::Channel,
     fetch_data::Data,
     Action::*,
     Screen::*,
