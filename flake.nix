@@ -32,7 +32,7 @@
 
         # create the workspace & dependencies package set
         rustPkgs = pkgs.rustBuilder.makePackageSet' {
-          rustChannel = "1.56.1";
+          rustChannel = "1.57.0";
           packageFun = import ./Cargo.nix;
           packageOverrides = pkgs: pkgs.rustBuilder.overrides.all ++ [
             (pkgs.rustBuilder.rustLib.makeOverride {
@@ -54,6 +54,7 @@
             cargo-watch
             rust-analyzer
             lldb
+            xorg.libxcb
 
             nixpkgs-fmt
           ];
